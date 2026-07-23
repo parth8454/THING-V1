@@ -1,15 +1,27 @@
 from core.agent import run_agent
 import asyncio
 from playwright.async_api import async_playwright
+from voice import listen
 
 async def main():
-    goal = input("Enter objective: ")
-    profile_dir = input(
-        "Enter path to browser profile (or leave blank): "
-    ).strip()
+    mode = "v".strip().lower()
+
+    if mode == "v":
+        goal = listen(duration=5)
+        if not goal:
+            print("❌ Nothing heard. Switching to text input.")
+            goal = input("Enter objective: ")
+    else:
+        goal = input("Enter objective: ")
+
+    profile_dir = ""
+
+    # profile_dir = input(
+    #     "Enter path to browser profile (or leave blank): "
+    # ).strip()
     session_file = ""
-    if not profile_dir:
-        session_file = input("Enter session file path (leave blank for none): ").strip()
+    # if not profile_dir:
+    #     session_file = input("Enter session file path (leave blank for none): ").strip()
 
     async with async_playwright() as p:
         if profile_dir:
