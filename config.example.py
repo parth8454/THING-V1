@@ -3,9 +3,9 @@ from groq import AsyncGroq
 
 os.environ["GROQ_API_KEY"] = "your-api-key-here"
 
-MODELS = ["llama-3.3-70b-versatile"]
+MODELS = ["openai/gpt-oss-120b","llama-3.1-8b-instant","llama-3.3-70b-versatile","openai/gpt-oss-20b"]
 
-TEXT_MODEL = MODELS[0]
+TEXT_MODEL = MODELS[3]
 
 VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 
