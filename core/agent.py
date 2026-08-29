@@ -6,10 +6,16 @@ from browser.tools import (get_screen_state, click_element, type_into_focused,
 from config import client,TEXT_MODEL
 from browser.schema import tools_schema
 from core.serializer import _serialize_assistant_message
+from voice import listen
 
 
-async def run_agent(page, objective, max_steps=15):
-    print(f"\n🚀 Mission Started: {objective}")
+async def run_agent(page, objective, max_steps=15, cancel_event=None):
+
+    if cancel_event and cancel_event.is_set():
+        print("Task cancelled!")
+        return
+
+    print(f"\nMission Started: {objective}")
 
     contextualized_objective = (
         f"You are currently on this page: {page.url}\n"
@@ -45,7 +51,12 @@ async def run_agent(page, objective, max_steps=15):
     #     )
 
     for step in range(max_steps):
-        print(f"\n🧠 [Thinking...] Step {step + 1}")
+
+        if cancel_event and cancel_event.is_set():
+            print("Task cancelled — naya task aa raha hai")
+            return
+
+        print(f"\n[Thinking...] Step {step + 1}")
 
         # --- TOKEN OPTIMIZATION (CONTEXT PRUNING) ---
         api_messages = []
@@ -90,9 +101,16 @@ async def run_agent(page, objective, max_steps=15):
 
         tool_calls = response_message.tool_calls
 
+# clarification to agent by user
+
         if not tool_calls:
-            print(f"🎉 Agent says: {response_message.content}")
-            break
+            print(f"Agent needs clarification: {response_message.content}")
+            clarification = listen(duration=6)
+            if clarification:
+                messages.append({"role": "user", "content": clarification})
+                continue  # loop continue karo same task mein
+            else:
+                break
 
         for tool_call in tool_calls:
             tool_result = None
@@ -159,7 +177,7 @@ async def run_agent(page, objective, max_steps=15):
                     )
                 
                 elif function_name == "task_complete":
-                    print(f"✅ Mission Complete: {function_args.get('summary')}")
+                    print(f"Mission Complete: {function_args.get('summary')}")
                     messages.append({
                         "tool_call_id": tool_call.id,
                         "role": "tool",
@@ -195,12 +213,23 @@ async def run_agent(page, objective, max_steps=15):
                 # rather than nudging blindly. This is the rare, expensive
                 # path -- only triggered when text-only context has failed.
                 try:
-                    hint = await get_vision_hint(page, objective, last_scraped_elements)
-                    messages.append({
-                        "role": "user",
-                        "content": f"[Vision assist -- you seem stuck] {hint}"
-                    })
-                    vision_assist_used_this_stall = True
+
+                    # inittially i used to get a ss of the page andd pass it to agent now i will just
+                    # tell the agent what to do on failure
+
+                    # hint = await get_vision_hint(page, objective, last_scraped_elements)
+                    # messages.append({
+                    #     "role": "user",
+                    #     "content": f"[Vision assist -- you seem stuck] {hint}"
+                    # })
+                    # vision_assist_used_this_stall = True
+                    
+                    clarification = listen(duration=6)
+                    if clarification:
+                        messages.append({"role": "user", "content": clarification})
+                        continue
+
+
                 except Exception as e:
                     messages.append({
                         "role": "user",
@@ -210,6 +239,7 @@ async def run_agent(page, objective, max_steps=15):
                             "a different action."
                         )
                     })
+                    
             else:
                 messages.append({
                     "role": "user",

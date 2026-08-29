@@ -8,7 +8,7 @@ async def get_screen_state(page):
     """Scrapes the live DOM and injects STABLE tracking IDs (assigned once, never
     reused). Returns tag/region alongside text so the model can disambiguate elements
     that share the same visible text. Works identically on any site."""
-    print("👀 [Tool Run] Scraping screen and injecting IDs...")
+    print("[Tool Run] Scraping screen and injecting IDs...")
 
     # for experiment remove this 2 sec cooldown
     # await page.wait_for_timeout(2000)
@@ -69,7 +69,7 @@ async def get_screen_state(page):
     MAX_ELEMENTS = 300
     capped_filtered = dict(list(filtered.items())[:MAX_ELEMENTS])
 
-    print(f"📄 Scraped {len(filtered)} usable elements (Capped to {len(capped_filtered)} for token limits)")
+    print(f"Scraped {len(filtered)} usable elements (Capped to {len(capped_filtered)} for token limits)")
 
     page_context = await page.evaluate('''() => ({
         title: document.title,
@@ -90,7 +90,7 @@ async def click_element(page, target_id):
 
     """Clicks an element based on its injected ID. Generic -- works on any site."""
 
-    print(f"🖱️ [Tool Run] Clicking element ID: {target_id}")
+    print(f"[Tool Run] Clicking element ID: {target_id}")
     try:
         await page.locator(f'[data-agent-id="{target_id}"]').click(timeout=2000)
         return f"Successfully clicked element {target_id}."
@@ -105,7 +105,7 @@ async def type_into_focused(page, target_id, text, press_enter=True):
     Works on <input>, <textarea>, and contenteditable divs identically -- no
     site-specific knowledge of what the field is 'for'."""
 
-    print(f"⌨️ [Tool Run] Typing '{text}' into ID: {target_id}")
+    print(f"[Tool Run] Typing '{text}' into ID: {target_id}")
     try:
         locator = page.locator(f'[data-agent-id="{target_id}"]')
 
@@ -125,7 +125,7 @@ async def press_key(page, key):
 
     """Presses a single key (Escape, Tab, ArrowDown, etc). Generic recovery/navigation tool."""
 
-    print(f"⌨️ [Tool Run] Pressing key: {key}")
+    print(f"[Tool Run] Pressing key: {key}")
     try:
         await page.keyboard.press(key)
         return f"Pressed key: {key}"
@@ -138,7 +138,7 @@ async def go_back(page):
 
     """Recovery tool: navigate back to previous page. Generic -- useful on any site."""
 
-    print("↩️ [Tool Run] Going back...")
+    print("[Tool Run] Going back...")
     try:
         await page.go_back(timeout=5000)
         return "Navigated back to the previous page."
@@ -156,7 +156,7 @@ async def wait_and_click_by_text(page, text_snippet, timeout_seconds=15):
     'Continue watching?' prompts, etc. Fully generic across sites; the specific
     text to look for is supplied by the model, not hardcoded per-site."""
 
-    print(f"⏳ [Tool Run] Waiting up to {timeout_seconds}s for an element containing '{text_snippet}'...")
+    print(f"[Tool Run] Waiting up to {timeout_seconds}s for an element containing '{text_snippet}'...")
     deadline = asyncio.get_event_loop().time() + timeout_seconds
     snippet_lower = text_snippet.lower()
 
@@ -197,7 +197,7 @@ async def wait_and_click_by_text(page, text_snippet, timeout_seconds=15):
     return f"No element containing '{text_snippet}' appeared within {timeout_seconds}s. It may not exist on this page, or may need more time."
 
 async def search_web(page, query):
-    print(f"🔍 Searching: {query}")
+    print(f"Searching: {query}")
     await page.goto(f"https://duckduckgo.com/?q={query}")
     await page.wait_for_timeout(2000)
     
@@ -222,7 +222,7 @@ async def search_web(page, query):
 )
 
 async def navigate_to_url(page, url):
-    print(f"🌐 Navigating to: {url}")
+    print(f"Navigating to: {url}")
     await page.goto(url)
     fresh_state = await get_screen_state(page)
     return f"Navigated to {url}. Screen: {fresh_state}"

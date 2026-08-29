@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+config.py
+insta_session.json
+leetcode_session.json
+*.json
+memory.txt
+v/
+new.py
+save_session.py
+capabilities/
+.directory
