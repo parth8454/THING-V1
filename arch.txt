@@ -1,0 +1,46 @@
+Thing-v2 architecture
+
+📱 WhatsApp (User) 
+       │
+       ▼  (JSON Payload)
+[1] 🚪 FastAPI Server (main.py)  <-- Entry Gate
+       │
+       ▼  (Triggers Event)
+[2] 🧠 The Brain (agent_2.py)    <-- Main Agent Loop
+       │
+       ├──► 📜 Rulebook (schema.py) (LLM ko batata hai kya tools hain)
+       ├──► 🤖 LLM (Groq/OpenAI/Claude) (Decides the action)
+       │
+       ▼  (Tool Call via HTTP)
+[3] 🔌 The Spine (mcp_server.py) <-- FastMCP Server (Port 8000)
+       │
+       ├──► 🌐 Browser Hands (tools.py) -> Connects to Brave (Port 9222)
+       ├──► 🐙 GitHub API (github_tools)
+       ├──► ⚡ Quick Search (fast_search)
+       └──► 💾 Memory Vault (memory_manager.py) -> agent_memory.json
+
+
+
+THE MEMORY PIPELINE (THING v2)
+                                  
+[ RAW INPUT ] (Massive UI Scrapes, <think> tags, User Chat)
+      │
+      ▼  (Enters Context Window)
+[ PRUNING ENGINE ] ──► (Drops old UI scrapes, keeps only the LATEST screen to save tokens)
+      │
+      ▼
+[ LLM (The Brain) ] ◄── (Reads SYSTEM_PROMPT & Tools Schema)
+      │
+      ├─► DECISION LOGIC: "Is this a permanent fact/preference or just UI trash?"
+      │
+      ▼ (If YES -> Triggers 'save_to_memory' Tool)
+[ THE FILTER (Schema) ] ──► (Forces LLM to strip all <think> and HTML, outputs pure JSON)
+      │
+      ▼ (Payload: {category: "...", key: "...", value: "..."})
+[ MCP SERVER ]
+      │
+      ▼
+[ MEMORY_MANAGER.PY ] ──► (Assigns timestamp, structures data)
+      │
+      ▼
+[ agent_memory.json ] ──► (The Vault: 100% Pure Concentrated Knowledge)

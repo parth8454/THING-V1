@@ -1,0 +1,43 @@
+thing_v1/
+│
+├── main.py                  # entry point, sirf launch karta hai
+│
+├── core/
+│   ├── agent.py             # run_agent loop, stall detection, context pruning
+│   ├── prompt.py            # SYSTEM_PROMPT aur koi bhi prompt templates
+│   └── serializer.py        # _serialize_assistant_message
+│
+├── browser/
+│   ├── tools.py             # get_screen_state, click_element, type_into_focused etc
+│   ├── schema.py            # tools_schema list
+│   └── vision.py            # get_vision_hint (vision fallback)
+│
+├── capabilities/            # ← yahan future features aate hain
+│   ├── whatsapp/            # tera existing WhatsApp automation
+│   ├── rag/                 # tera college docs RAG
+│   └── browser_agent/       # yeh wala current project
+│
+└── config.py                # API keys, model names, constants
+
+
+
+finally.py
+│
+├── Lines 1-20      → config.py        (API keys, model names, constants)
+├── Lines 25-179    → browser/tools.py  (get_screen_state, click, type etc)
+├── Lines 186-220   → browser/vision.py (get_vision_hint)
+├── Lines 226-315   → browser/schema.py (tools_schema)
+├── Lines 318-351   → core/prompt.py    (SYSTEM_PROMPT)
+└── Lines 356-545   → core/agent.py     (run_agent loop)
+
+new things to adddd and improve
+
+1. Shift to Local Inference (Zero Limits)
+Tere hardware par Ollama ya LM Studio aaram se chal jayega. Tu chote aur highly capable models (jaise Llama-3 8B (4-bit quantized), Phi-3, ya Qwen) locally run kar sakta hai.
+
+Fayda: Token limits ka jhanjhat hamesha ke liye khatam. Completely free, completely private, aur unlimited agentic loops. Tere agent ko jitna sochna hai sochne de.
+
+2. Optimize Your Web Scraping (Stop Feeding Garbage)
+Agar tu abhi bhi API use karna chahta hai, toh issue yeh hai ki raw HTML mein 80% tokens CSS, scripts, aur useless tags kha jaate hain.
+
+Fix: LLM ko data bhejne se pehle BeautifulSoup, Trafilatura, ya Mozilla Readability jaisi libraries use karke sirf "main text" extract kar. Tere token consumption easily 10x kam ho jayegi.
