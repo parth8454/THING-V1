@@ -231,6 +231,7 @@ It is a developer tool rather than a consumer product.
 | :--- | :--- |
 | **Canvas / WebGL / Shadow DOM** | Sites that render UI in `<canvas>`, WebGL (for example Spline scenes or browser games), or obfuscated Shadow DOMs expose no standard elements to tag, so the agent cannot reliably interact with them. |
 | **Token cost and rate limits** | Each action re-reads the updated DOM. This consumes tokens quickly on paid models, and free tiers (for example Groq) can hit RPM or TPM limits within minutes of aggressive looping. |
+| **Token cost** | Only interactable elements are sent to the model and earlier useful results are reused, but cost still grows with page complexity and the number of steps in the loop.|
 | **Latency** | Each step runs scrape, API call, inference, parse, and execute, adding roughly 2 to 5 seconds per action. This is slower than a hardcoded Playwright or Selenium script. |
 | **Setup complexity** | Requires comfort with Git, Python virtual environments, `playwright install`, and `.env` management. |
 | **Popups and obstructions** | Cookie banners, newsletter modals, and CAPTCHAs can obscure target elements. Memory reduces repeated failures but does not eliminate loops unless the model reasons to dismiss the obstruction first. |
